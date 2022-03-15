@@ -4,16 +4,13 @@
 #include <algorithm>
 #include "brainfuck.hpp"
 
-VString readArrayOfRawCodeFromInputFile(const char* fileName) {
+VString readRawCode(const char* fileName) {
     VString vector;
-    InputStrm ifs;
-    ifs.open(fileName);
-    while (!ifs.eof()) {
-        str check;
-        ifs >> check;
+    InputStrm ifs(fileName);
+    str check;
+    while (ifs >> check) {
         vector.push_back(check);
     }
-    ifs.close();
     return vector;
 }
 
@@ -21,19 +18,17 @@ VChar getFinalCode(VString& rawCode, int& checkBrackets) {
     VChar code;
     checkBrackets = 0;
     for (int nWord = 0; nWord < rawCode.size(); ++nWord) {
-        for (int nChar = 0; nChar < rawCode[nWord].length(); ++nChar) { //loop through every character of every string in the file
-            auto charat = rawCode[nWord][nChar]; //(didn't know if I need a pointer)
-            if (std::find(COMMANDS_V.begin(), COMMANDS_V.end(), charat) != COMMANDS_V.end()) { //check the char is in the command
-                //push it in the final code (char vector)
+        for (int nChar = 0; nChar < rawCode[nWord].length(); ++nChar) {
+            auto charat = rawCode[nWord][nChar];
+            if (std::find(COMMANDS_V.begin(), COMMANDS_V.end(), charat) != COMMANDS_V.end()) {
+                //IF THE CHAR IS NOT FOUND YOU JUST REMOVE IT
                 code.push_back(charat);
-                if (charat == '[') {
-                    ++checkBrackets;
+                if (charat == '[') { 
+                    ++checkBrackets; 
                 }
-                else if (charat == ']') {
-                    --checkBrackets;
+                else if (charat == ']') { 
+                    --checkBrackets; 
                 }
-                //check brackets, if the sum of closing and opening ones
-                //is equal to 0 there's no errors, otherwise there's an error
             }
         }   
     }
@@ -41,8 +36,9 @@ VChar getFinalCode(VString& rawCode, int& checkBrackets) {
 }
 
 int interpretateCode(const VChar& code) {
-    VChar memory(1, 0); //treated as a VInt
+    VChar memory(1, 0);
     int pos = 0;
+    int res;
     VInt loopPositions;
     for (int i = 0; i < code.size(); ++i) {
         switch (code[i]) {
@@ -102,7 +98,7 @@ int interpretateCode(const VChar& code) {
     }
     //END CODE
     printAllCells(memory, pos);
-    return 1;
+    return res;
 }
 
 void printAllCells(const VChar& memory, int pos) {
